@@ -110,7 +110,7 @@ fclean_host:
 	@echo "\033[32mBinary file $(BIN_U) deleted\033[0m"
 	@rm -f $(BIN_U)
 	@rm -f $(NAME_U_D)
-	@cargo clean && rm -f Cargo.lock
+	@cargo clean
 
 c_clean:
 	@echo "\033[32mC edl generated files deleted\033[0m"

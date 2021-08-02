@@ -138,7 +138,7 @@ fclean_enclave:
 	@rm -f $(NAME)
 	@rm -f $(BIN_T)
 	@rm -f $(LIB)libenclave.a
-	@cargo clean && rm -f Cargo.lock
+	@cargo clean
 
 c_clean:
 	@echo "\033[32mC edl generated files deleted\033[0m"
