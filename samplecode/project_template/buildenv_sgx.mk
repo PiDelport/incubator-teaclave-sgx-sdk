@@ -34,3 +34,16 @@ ifeq ($(SGX_DEBUG), 1)
 else
 	SGX_COMMON_CFLAGS += -O2
 endif
+
+# Show helpful error messages if main environment variables are not set.
+
+$(SGX_EDGER8R):
+	$(error "$@" does not exist. (Is SGX_SDK set correctly?))
+
+ifndef CUSTOM_EDL_PATH
+$(error CUSTOM_EDL_PATH not set)
+endif
+
+ifndef CUSTOM_COMMON_PATH
+$(error CUSTOM_COMMON_PATH not set)
+endif
