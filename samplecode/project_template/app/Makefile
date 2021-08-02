@@ -9,7 +9,6 @@ NAME_U = libEnclave_u.a
 SRC_U = ./
 SRC_T = ../enclave/
 OBJ_U = ../obj/
-SGX_SDK ?= /opt/sgxsdk
 FLAGS = -Wall -Wextra
 GCC_STEP1_U = -I $(SRC_U) -I./include -I$(SGX_SDK)/include -I$(CUSTOM_EDL_PATH) -fPIC -Wno-attributes $(SGX_COMMON_CFLAGS)
 FILES_U = Enclave_u.c
@@ -30,43 +29,9 @@ FILES_RUST_F= $(wildcard $(SRC_RST)*.rs) # Wildcard function used, no need to sp
 # Contains compilation rules for the enclave part
 
 include ../buildenv.mk
+include ../buildenv_sgx.mk
 
 # Custom libraries, EDL paths. Needs to be specified with make (CUSTOM_EDL_PATH) (CUSTOM_COMMON_PATH)
-
-# Directly imported from the original Intel SGX samples, helpful to detect the system architecture
-
-ifeq ($(shell getconf LONG_BIT), 32)
-	SGX_ARCH := x86
-else ifeq ($(findstring -m32, $(CXXFLAGS)), -m32)
-	SGX_ARCH := x86
-endif
-
-ifeq ($(SGX_ARCH), x86)
-	SGX_COMMON_CFLAGS := -m32
-	SGX_LIBRARY_PATH := $(SGX_SDK)/lib
-	SGX_ENCLAVE_SIGNER := $(SGX_SDK)/bin/x86/sgx_sign
-	SGX_EDGER8R := $(SGX_SDK)/bin/x86/sgx_edger8r
-else
-	SGX_COMMON_CFLAGS := -m64
-	SGX_LIBRARY_PATH := $(SGX_SDK)/lib64
-	SGX_ENCLAVE_SIGNER := $(SGX_SDK)/bin/x64/sgx_sign
-	SGX_EDGER8R := $(SGX_SDK)/bin/x64/sgx_edger8r
-endif
-
-# If specified, software / simulation mode. Otherwise, hardware mode no matter what.
-
-ifeq ($(SGX_MODE), SW)
-	TRTS_LIB := sgx_trts_sim
-	SERVICE_LIB := sgx_tservice_sim
-endif
-
-# If debug mode, we can set up extra options such as the debug flags
-
-ifeq ($(SGX_DEBUG), 1)
-	SGX_COMMON_CFLAGS += -O0 -g
-else
-	SGX_COMMON_CFLAGS += -O2
-endif
 
 # Compilation process, we set up all the dependencies needed to have the correct order of build, and avoid relink
 
