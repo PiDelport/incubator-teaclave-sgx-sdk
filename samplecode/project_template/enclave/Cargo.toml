@@ -10,7 +10,7 @@ crate-type = ["staticlib"]
 [features]
 default = []
 
-[target.'cfg(not(target_env = "sgx"))'.dependencies] # You can remove what you don't need, except types and tstd
+[dependencies]
 sgx_types = { git = "https://github.com/apache/teaclave-sgx-sdk.git" }
 sgx_tstd = { git = "https://github.com/apache/teaclave-sgx-sdk.git", features = ["backtrace"] }
 sgx_tcrypto = { git = "https://github.com/apache/teaclave-sgx-sdk.git" }
