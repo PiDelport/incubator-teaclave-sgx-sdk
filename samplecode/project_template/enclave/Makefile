@@ -1,6 +1,7 @@
 # Makefile settings
 
 APP_T_SIGNED = enclave.signed.so
+KEYS = ../keys
 LIB = ../build/lib/
 BIN = ../build/bin/
 SRC_RST = ./src/
@@ -58,17 +59,21 @@ all: $(NAME)
 
 # We print the compilation mode we're in (hardware/software mode), just as a reminder.
 
-$(NAME): $(BIN_T)
+$(NAME): $(BIN_T) $(KEYS)/Enclave_private.pem
 ifeq ($(SGX_MODE), SW)
 	@echo "\033[32mSoftware / Simulation mode\033[0m"
 else
 	@echo "\033[32mHardware mode\033[0m"
 endif
-	@echo "\033[32mGenerating keys and signing the enclave...\033[0m"
+	@echo "\033[32mSigning the enclave...\033[0m"
 	@mkdir -p $(BIN)
-	@openssl genrsa -out Enclave_private.pem -3 3072
-	@openssl rsa -in Enclave_private.pem -pubout -out Enclave_public.pem
-	@$(SGX_ENCLAVE_SIGNER) sign -key $(SRC_T)Enclave_private.pem -enclave $(BIN_T) -out $@ -config $(SRC_T)Enclave.config.xml
+	@$(SGX_ENCLAVE_SIGNER) sign -key $(KEYS)/Enclave_private.pem -enclave $(BIN_T) -out $@ -config $(SRC_T)Enclave.config.xml
+
+$(KEYS)/Enclave_private.pem $(KEYS)/Enclave_public.pem:
+	@echo "\033[32mGenerating keys...\033[0m"
+	@mkdir -p $(KEYS)
+	@openssl genrsa -out $(KEYS)/Enclave_private.pem -3 3072
+	@openssl rsa -in $(KEYS)/Enclave_private.pem -pubout -out $(KEYS)/Enclave_public.pem
 
 $(BIN_T): $(NAME_T_D)
 	@echo "\033[32mBuilding the enclave...\033[0m"
