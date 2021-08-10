@@ -25,7 +25,7 @@ ENCLAVE_CONFIG = Enclave.config.xml
 SGX_ARCH = x64
 TRTS_LIB = sgx_trts
 SERVICE_LIB = sgx_tservice
-ENCLAVE_CARGO_LIB=libsample.a # This is the name of the enclave static library compiled by Cargo/Xargo. You will have to change it, depending of your project.
+ENCLAVE_CARGO_LIB=libsample.a # This is the name of the enclave static library compiled by Cargo. You will have to change it, depending of your project.
 # Addprefix dependant variables, no need to change those
 OUTPUT_T = $(FILES_T:.c=.o)
 NAME = $(addprefix $(BIN), $(APP_T_SIGNED))
@@ -42,7 +42,7 @@ FILES_RUST_F= $(wildcard $(SRC_RST)*.rs) # Wildcard function used, no need to sp
 include ../buildenv.mk
 include ../buildenv_sgx.mk
 
-# Custom header files and EDL paths needs to be specified with make (CUSTOM_EDL_PATH) (CUSTOM_COMMON_PATH) Same goes for Xargo location (XARGO_PATH)
+# Custom header files and EDL paths needs to be specified with make (CUSTOM_EDL_PATH) (CUSTOM_COMMON_PATH)
 
 ifeq ($(MITIGATION-CVE-2020-0551), LOAD)
 export MITIGATION_CVE_2020_0551=LOAD
@@ -73,15 +73,9 @@ $(BIN_T): $(NAME_T_D)
 	@$(CXX) $(OUTPUT_W_FT) -o $@ $(GCC_STEP2_T)
 
 $(NAME_T_D): $(FILES_T_F) $(OUTPUT_W_FT) $(FILES_RUST_F) $(EDL_FILE) $(ENCLAVE_CONFIG) $(TOML) # We added as a reference the rust files, along with the EDL, the XML config file and the cargo.toml file, so Make can detect if any change was made
-ifeq ($(XARGO_SGX), 1) # Building with Xargo
-	@echo "\033[32mBuilding enclave static library with Xargo...\033[0m"
-	RUST_TARGET_PATH=$(XARGO_PATH) xargo build --target x86_64-unknown-linux-sgx --release
-	@cp ./target/x86_64-unknown-linux-sgx/release/$(ENCLAVE_CARGO_LIB) $(LIB)libenclave.a
-else
 	@echo "\033[32mBuilding enclave static library with Cargo...\033[0m"
 	@cargo build --release
 	@cp ./target/release/$(ENCLAVE_CARGO_LIB) $(LIB)libenclave.a
-endif
 
 $(FILES_T_F): $(SGX_EDGER8R) $(SRC_T)/Enclave.edl
 	@echo "\033[32mGenerating trusted SGX C edl files...\033[0m"
