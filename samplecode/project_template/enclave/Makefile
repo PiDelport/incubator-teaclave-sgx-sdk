@@ -8,10 +8,11 @@ APP_T = enclave.so
 NAME_T = libenclave.a
 SRC_U = ../app/
 SRC_T = ./
+CODEGEN_T = $(SRC_T)/codegen/
 OBJ_T = ../obj/
 FLAGS = -Wall -Wextra
 GCC_STEP1_T = -fstack-protector -I$(CUSTOM_COMMON_PATH)/inc -I$(CUSTOM_EDL_PATH) -I$(SGX_SDK)/include \
-	-I$(SGX_SDK)/include/tlibc -I$(SGX_SDK)/include/stlport -I$(SGX_SDK)/include/epid -I $(SRC_T) \
+	-I$(SGX_SDK)/include/tlibc -I$(SGX_SDK)/include/stlport -I$(SGX_SDK)/include/epid -I $(CODEGEN_T) \
 	-L$(LIB) $(ENCLAVE_CFLAGS) $(SGX_COMMON_CFLAGS)
 GCC_STEP2_T = -Wl,--no-undefined -nostdlib -nodefaultlibs -nostartfiles -L$(SGX_LIBRARY_PATH) \
 	-Wl,--whole-archive -l$(TRTS_LIB) -Wl,--no-whole-archive \
@@ -32,7 +33,8 @@ NAME = $(addprefix $(BIN), $(APP_T_SIGNED))
 BIN_T = $(addprefix $(BIN), $(APP_T))
 NAME_T_D = $(addprefix $(LIB), $(NAME_T))
 OUTPUT_W_FU=$(addprefix $(OBJ_U), $(OUTPUT_U))
-FILES_T_F=$(addprefix $(SRC_T), $(FILES_T))
+FILES_T_F=$(addprefix $(CODEGEN_T), $(FILES_T))
+FILES_T_H_F=$(addprefix $(CODEGEN_T), $(FILES_T_H))
 FILES_T_F_RUST=$(addprefix $(SRC_T), $(FILES_T_RUST))
 OUTPUT_W_FT=$(addprefix $(OBJ_T), $(OUTPUT_T))
 FILES_RUST_F= $(wildcard $(SRC_RST)*.rs) # Wildcard function used, no need to specify the rust files. Safe as we don't compile the rust files with the makefile.
@@ -79,9 +81,9 @@ $(NAME_T_D): $(FILES_T_F) $(OUTPUT_W_FT) $(FILES_RUST_F) $(EDL_FILE) $(ENCLAVE_C
 
 $(FILES_T_F): $(SGX_EDGER8R) $(SRC_T)/Enclave.edl
 	@echo "\033[32mGenerating trusted SGX C edl files...\033[0m"
-	@$(SGX_EDGER8R) --trusted $(SRC_T)/Enclave.edl --search-path $(SGX_SDK)/include --search-path $(CUSTOM_EDL_PATH) --trusted-dir $(SRC_T)
+	@$(SGX_EDGER8R) --trusted $(SRC_T)/Enclave.edl --search-path $(SGX_SDK)/include --search-path $(CUSTOM_EDL_PATH) --trusted-dir $(CODEGEN_T)
 
-$(OBJ_T)%.o:$(SRC_T)%.c
+$(OBJ_T)%.o:$(CODEGEN_T)%.c
 	@mkdir -p $(OBJ_T)
 	@echo "\033[32m$?: Build in progress...\033[0m"
 	@$(CC) $(FLAGS) $(GCC_STEP1_T) -o $@ -c $?
@@ -102,7 +104,7 @@ fclean_enclave:
 c_clean:
 	@echo "\033[32mC edl generated files deleted\033[0m"
 	@rm -rf $(FILES_T_F)
-	@rm -f $(FILES_T_H)
+	@rm -f $(FILES_T_H_F)
 
 re: fclean all
 
