@@ -1,15 +1,15 @@
 # Makefile settings
 
 APP_T_SIGNED = enclave.signed.so
-LIB = ../lib/
-BIN = ../bin/
+LIB = ../build/lib/
+BIN = ../build/bin/
 SRC_RST = ./src/
 APP_T = enclave.so
 NAME_T = libenclave.a
 SRC_U = ../app/
 SRC_T = ./
 CODEGEN_T = $(SRC_T)/codegen/
-OBJ_T = ../obj/
+OBJ_T = ../build/obj/
 FLAGS = -Wall -Wextra
 GCC_STEP1_T = -fstack-protector -I$(CUSTOM_COMMON_PATH)/inc -I$(CUSTOM_EDL_PATH) -I$(SGX_SDK)/include \
 	-I$(SGX_SDK)/include/tlibc -I$(SGX_SDK)/include/stlport -I$(SGX_SDK)/include/epid -I $(CODEGEN_T) \

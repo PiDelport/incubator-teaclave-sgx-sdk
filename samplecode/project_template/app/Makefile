@@ -1,7 +1,7 @@
 # Makefile settings - Host part
 
-LIB = ../lib/
-BIN = ../bin/
+LIB = ../build/lib/
+BIN = ../build/bin/
 SRC_RST = ./src/
 APP_U = app
 APP_T = enclave.so
@@ -9,7 +9,7 @@ NAME_U = libEnclave_u.a
 SRC_U = ./
 CODEGEN_U = $(SRC_U)/codegen/
 SRC_T = ../enclave/
-OBJ_U = ../obj/
+OBJ_U = ../build/obj/
 FLAGS = -Wall -Wextra
 GCC_STEP1_U = -I $(CODEGEN_U) -I./include -I$(SGX_SDK)/include -I$(CUSTOM_EDL_PATH) -fPIC -Wno-attributes $(SGX_COMMON_CFLAGS)
 FILES_U = Enclave_u.c
