@@ -25,7 +25,7 @@ use enclave_u::ecall_test;
 use sgx_types::*;
 use sgx_urts::SgxEnclave;
 
-static ENCLAVE_FILE: &'static str = "enclave.signed.so";
+static ENCLAVE_FILE: &str = "enclave.signed.so";
 
 fn init_enclave() -> SgxResult<SgxEnclave> {
     let mut launch_token: sgx_launch_token_t = [0; 1024];
