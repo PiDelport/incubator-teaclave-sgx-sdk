@@ -5,7 +5,13 @@ extern crate sgx_urts;
 mod enclave_u;
 
 use enclave_u::ecall_test;
-use sgx_types::*;
+use sgx_types::{
+    sgx_attributes_t,
+    sgx_launch_token_t,
+    sgx_misc_attribute_t,
+    sgx_status_t,
+    SgxResult,
+};
 use sgx_urts::SgxEnclave;
 
 static ENCLAVE_FILE: &str = "enclave.signed.so";
