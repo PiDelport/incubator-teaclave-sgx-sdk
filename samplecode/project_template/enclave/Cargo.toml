@@ -1,12 +1,11 @@
 [package]
-name = "template"
+# name matches ENCLAVE_CARGO_LIB in Makefile
+name = "template-enclave"
 version = "0.1.0"
 edition = "2018"
 authors = ["The Teaclave Authors"]
 
 [lib]
-# Library name. If you change this, please reflect those changes in the Makefile on the variable ENCLAVE_CARGO_LIB
-name = "sample"
 crate-type = ["staticlib"]
 test = false
 

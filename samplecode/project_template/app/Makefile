@@ -2,7 +2,8 @@
 
 LIB = ../build/lib/
 BIN = ../build/bin/
-APP_U = app
+# APP_U matches name in Cargo.toml
+APP_U = template-app
 APP_T = enclave.so
 NAME_U = libEnclave_u.a
 SRC_U = ./
@@ -64,7 +65,7 @@ endif
 	@cd $(SRC_U) && SGX_SDK=$(SGX_SDK) cargo build --release
 	@echo "\033[32mCopying the host to the correct location... ($(BIN_U))\033[0m"
 	@mkdir -p $(BIN)
-	@cp $(SRC_U)/target/release/app $(BIN)
+	@cp $(SRC_U)/target/release/$(APP_U) $(BIN)
 
 $(CODEGEN_U)Enclave_u.rs: $(CODEGEN_U)Enclave_u.h
 	@echo "\033[32mGenerating Rust bindings: $@\033[0m"
