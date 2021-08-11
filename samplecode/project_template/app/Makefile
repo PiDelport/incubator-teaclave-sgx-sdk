@@ -2,7 +2,6 @@
 
 LIB = ../build/lib/
 BIN = ../build/bin/
-SRC_RST = ./src/
 APP_U = app
 APP_T = enclave.so
 NAME_U = libEnclave_u.a
@@ -14,8 +13,6 @@ FLAGS = -Wall -Wextra
 GCC_STEP1_U = -I $(CODEGEN_U) -I./include -I$(SGX_SDK)/include -I$(CUSTOM_EDL_PATH) -fPIC -Wno-attributes $(SGX_COMMON_CFLAGS)
 FILES_U = Enclave_u.c
 FILES_U_H = Enclave_u.h
-BUILD_RS = build.rs
-TOML = Cargo.toml
 SGX_ARCH = x64
 TRTS_LIB = sgx_trts
 SERVICE_LIB = sgx_tservice
@@ -26,7 +23,9 @@ NAME_U_D = $(addprefix $(LIB), $(NAME_U))
 FILES_U_F=$(addprefix $(CODEGEN_U), $(FILES_U))
 FILES_U_H_F=$(addprefix $(CODEGEN_U), $(FILES_U_H))
 OUTPUT_W_FU=$(addprefix $(OBJ_U), $(OUTPUT_U))
-FILES_RUST_F= $(wildcard $(SRC_RST)*.rs) # Wildcard function used, no need to specify the rust files. Safe as we don't compile the rust files with the makefile.
+
+# All Rust and other source files that the Cargo build depends on.
+FILES_RUST_F = Cargo.toml Cargo.lock build.rs $(shell find src -name '*.rs') $(CODEGEN_U)Enclave_u.rs
 
 # Contains compilation rules for the enclave part
 
@@ -55,7 +54,7 @@ $(OBJ_U)%.o:$(CODEGEN_U)%.c
 
 # We print the compilation mode we're in (hardware/software mode), just as a reminder.
 
-$(BIN_U): $(NAME_U_D) $(FILES_RUST_F) $(FILES_U_H_F) $(BUILD_RS) $(TOML) # We added as a reference the rust files, along with the build.rs file and the cargo.toml file, so Make can detect if any change was made
+$(BIN_U): $(NAME_U_D) $(FILES_RUST_F) $(FILES_U_H_F)
 ifeq ($(SGX_MODE), SW)
 	@echo "\033[32mSoftware / Simulation mode\033[0m"
 else
@@ -66,6 +65,16 @@ endif
 	@echo "\033[32mCopying the host to the correct location... ($(BIN_U))\033[0m"
 	@mkdir -p $(BIN)
 	@cp $(SRC_U)/target/release/app $(BIN)
+
+$(CODEGEN_U)Enclave_u.rs: $(CODEGEN_U)Enclave_u.h
+	@echo "\033[32mGenerating Rust bindings: $@\033[0m"
+	@bindgen \
+		--no-recursive-allowlist \
+		--raw-line 'use sgx_types::*;' \
+		--allowlist-function ecall_test \
+		--output $@ \
+		$? \
+		-- -I$(SGX_SDK)/include -I$(CUSTOM_EDL_PATH)
 
 clean: c_clean
 	@rm -rf $(OBJ_U)

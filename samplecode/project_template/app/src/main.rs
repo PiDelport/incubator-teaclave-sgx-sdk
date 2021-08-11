@@ -17,19 +17,15 @@
 
 extern crate sgx_types;
 extern crate sgx_urts;
+
+#[path = "../codegen/Enclave_u.rs"]
+mod enclave_u;
+
+use enclave_u::ecall_test;
 use sgx_types::*;
 use sgx_urts::SgxEnclave;
 
 static ENCLAVE_FILE: &'static str = "enclave.signed.so";
-
-extern "C" {
-    fn ecall_test(
-        eid: sgx_enclave_id_t,
-        retval: *mut sgx_status_t,
-        some_string: *const u8,
-        len: usize,
-    ) -> sgx_status_t;
-}
 
 fn init_enclave() -> SgxResult<SgxEnclave> {
     let mut launch_token: sgx_launch_token_t = [0; 1024];

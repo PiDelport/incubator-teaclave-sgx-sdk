@@ -4,7 +4,6 @@ APP_T_SIGNED = enclave.signed.so
 KEYS = ../keys
 LIB = ../build/lib/
 BIN = ../build/bin/
-SRC_RST = ./src/
 APP_T = enclave.so
 NAME_T = libenclave.a
 SRC_U = ../app/
@@ -22,7 +21,6 @@ GCC_STEP2_T = -Wl,--no-undefined -nostdlib -nodefaultlibs -nostartfiles -L$(SGX_
 FILES_T = Enclave_t.c
 FILES_T_H = Enclave_t.h
 EDL_FILE = Enclave.edl
-TOML = Cargo.toml
 ENCLAVE_CONFIG = Enclave.config.xml
 SGX_ARCH = x64
 TRTS_LIB = sgx_trts
@@ -38,7 +36,9 @@ FILES_T_F=$(addprefix $(CODEGEN_T), $(FILES_T))
 FILES_T_H_F=$(addprefix $(CODEGEN_T), $(FILES_T_H))
 FILES_T_F_RUST=$(addprefix $(SRC_T), $(FILES_T_RUST))
 OUTPUT_W_FT=$(addprefix $(OBJ_T), $(OUTPUT_T))
-FILES_RUST_F= $(wildcard $(SRC_RST)*.rs) # Wildcard function used, no need to specify the rust files. Safe as we don't compile the rust files with the makefile.
+
+# All Rust and other source files that the Cargo build depends on.
+FILES_RUST_F = Cargo.toml Cargo.lock $(shell find src -name '*.rs')
 
 # Contains compilation rules for the enclave part
 
@@ -79,7 +79,7 @@ $(BIN_T): $(NAME_T_D)
 	@echo "\033[32mBuilding the enclave...\033[0m"
 	@$(CXX) $(OUTPUT_W_FT) -o $@ $(GCC_STEP2_T)
 
-$(NAME_T_D): $(FILES_T_F) $(OUTPUT_W_FT) $(FILES_RUST_F) $(EDL_FILE) $(ENCLAVE_CONFIG) $(TOML) # We added as a reference the rust files, along with the EDL, the XML config file and the cargo.toml file, so Make can detect if any change was made
+$(NAME_T_D): $(FILES_T_F) $(OUTPUT_W_FT) $(FILES_RUST_F) $(EDL_FILE) $(ENCLAVE_CONFIG) # We added as a reference the rust files, along with the EDL, the XML config file and the cargo.toml file, so Make can detect if any change was made
 	@echo "\033[32mBuilding enclave static library with Cargo...\033[0m"
 	@cargo build --release
 	@cp ./target/release/$(ENCLAVE_CARGO_LIB) $(LIB)libenclave.a
