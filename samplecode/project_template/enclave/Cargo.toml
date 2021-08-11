@@ -4,7 +4,8 @@ version = "1.0.0"
 authors = ["The Teaclave Authors"]
 
 [lib]
-name = "sample" # Library name. If you change this, please reflect those changes in the Makefile on the variable ENCLAVE_CARGO_LIB
+# Library name. If you change this, please reflect those changes in the Makefile on the variable ENCLAVE_CARGO_LIB
+name = "sample"
 crate-type = ["staticlib"]
 test = false
 
