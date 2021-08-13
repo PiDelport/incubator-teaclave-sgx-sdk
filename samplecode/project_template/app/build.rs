@@ -1,6 +1,9 @@
 use std::env;
 
 fn main() {
+    println!("cargo:rerun-if-env-changed=SGX_SDK");
+    println!("cargo:rerun-if-env-changed=SGX_MODE");
+
     let sdk_dir = env::var("SGX_SDK").unwrap_or_else(|_| "/opt/sgxsdk".to_string());
     let is_sim = env::var("SGX_MODE").unwrap_or_else(|_| "HW".to_string());
 
